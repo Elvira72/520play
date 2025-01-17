@@ -1,90 +1,264 @@
-<html lang="en"><head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover">
-  <title _msthash="61815" _msttexthash="746746"></title>
-  <link rel="shortcut icon" href="http://www.tombk.cn/tom/img/logo.png" type="image/x-icon">
-  <link href="https://res.wx.qq.com/a/wx_fed/money-envelope-cover/res/css/chunk-common.69733efd.css" rel="stylesheet">
-  <link href="https://res.wx.qq.com/a/wx_fed/money-envelope-cover/res/css/red_cover.ab6aa076.css" rel="stylesheet">
-  <style id="__WXWORK_INNER_SCROLLBAR_CSS">::-webkit-scrollbar { width: 12px !important; height: 12px !important; }::-webkit-scrollbar-track:vertical {  }::-webkit-scrollbar-thumb:vertical { background-color: rgba(136, 141, 152, 0.5) !important; border-radius: 10px !important; background-clip: content-box !important; border:2px solid transparent !important; } ::-webkit-scrollbar-track:horizontal {  }::-webkit-scrollbar-thumb:horizontal { background-color: rgba(136, 141, 152, 0.5) !important; border-radius: 10px !important; background-clip: content-box !important; border:2px solid transparent !important; } ::-webkit-resizer { display: none !important; }
-  </style>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE> New Document </TITLE>
+<META NAME="Generator" CONTENT="EditPlus">
+<META NAME="Author" CONTENT="">
+<META NAME="Keywords" CONTENT="">
+<META NAME="Description" CONTENT="">
+<style>
+html, body {
+height: 100%;
+padding: 0;
+margin: 0;
+background: #000;
+}
+canvas {
+position: absolute;
+width: 100%;
+height: 100%;
+}
+</style>
+</HEAD>
 
-  <style class="mpa-style-fix ImageGatherer">.FotorFrame{position:fixed!important}</style><style class="mpa-style-fix SideFunctionPanel">.weui-desktop-online-faq__wrp{top:304px!important;bottom:unset!important}.weui-desktop-online-faq__wrp .weui-desktop-online-faq__switch{width:38px!important}</style>
-  <script>
-    document.title = "来自迪士尼在逃公主的红包";
-      function fun1(){
-          alert('不是吧！不是吧？'); 
-          alert('不是吧....这个你也信？'); 
-          alert('上班这么清闲？'); 
-          alert('就这样来摸鱼？'); 
-          alert('这么想要这个红包封面？');
-          alert('不行..能不能换个方式摸鱼？？');
-          alert('2024年你摸鱼赚了多少钱嘛？？');
-          alert('薅了老板多少羊毛嘛？');
-          alert('2025年打算怎么摸呢？');
-          alert('认真工作叫赚工资！');
-          alert('摸鱼才是赚钱好吧！');
-          alert('好了，先这样了！');
-          alert('恭喜你....');
-          alert('已经成功了摸鱼了...');
-          alert('我也不知道多少秒...');
-          alert('自己算吧...');
-          alert('好了....');
-          alert('就让你们摸到这吧！');
-          alert('不管别人怎么说你..');
-          alert('记住了，摸鱼人！');
-          alert('永远都要做好自己...');
-          alert('摸自己的鱼....');
-          alert('让他们去说吧...');
-          alert('最后....');
-          alert('摸鱼人日历，祝你');
-          alert('有个万事顺意...');
-          alert('平平安安...');
-          alert('快快乐乐的2025');
-          alert('接着摸鱼去...');
-          alert('祝你新年快乐');
-          window.close();
-      }
+<BODY>
+<canvas id="pinkboard"></canvas>
+<script>
+/*
+* Settings
+*/
+var settings = {
+particles: {
+length:   500, // maximum amount of particles
+duration:   2, // particle duration in sec
+velocity: 100, // particle velocity in pixels/sec
+effect: -0.75, // play with this for a nice effect
+size:      30, // particle size in pixels
+},
+};
+
+/*
+* RequestAnimationFrame polyfill by Erik Möller
+*/
+(function(){var b=0;var c=["ms","moz","webkit","o"];for(var a=0;a<c.length&&!window.requestAnimationFrame;++a){window.requestAnimationFrame=window[c[a]+"RequestAnimationFrame"];window.cancelAnimationFrame=window[c[a]+"CancelAnimationFrame"]||window[c[a]+"CancelRequestAnimationFrame"]}if(!window.requestAnimationFrame){window.requestAnimationFrame=function(h,e){var d=new Date().getTime();var f=Math.max(0,16-(d-b));var g=window.setTimeout(function(){h(d+f)},f);b=d+f;return g}}if(!window.cancelAnimationFrame){window.cancelAnimationFrame=function(d){clearTimeout(d)}}}());
+
+/*
+* Point class
+*/
+var Point = (function() {
+function Point(x, y) {
+this.x = (typeof x !== 'undefined') ? x : 0;
+this.y = (typeof y !== 'undefined') ? y : 0;
+}
+Point.prototype.clone = function() {
+return new Point(this.x, this.y);
+};
+Point.prototype.length = function(length) {
+if (typeof length == 'undefined')
+    return Math.sqrt(this.x * this.x + this.y * this.y);
+this.normalize();
+this.x *= length;
+this.y *= length;
+return this;
+};
+Point.prototype.normalize = function() {
+var length = this.length();
+this.x /= length;
+this.y /= length;
+return this;
+};
+return Point;
+})();
+
+/*
+* Particle class
+*/
+var Particle = (function() {
+function Particle() {
+this.position = new Point();
+this.velocity = new Point();
+this.acceleration = new Point();
+this.age = 0;
+}
+Particle.prototype.initialize = function(x, y, dx, dy) {
+this.position.x = x;
+this.position.y = y;
+this.velocity.x = dx;
+this.velocity.y = dy;
+this.acceleration.x = dx * settings.particles.effect;
+this.acceleration.y = dy * settings.particles.effect;
+this.age = 0;
+};
+Particle.prototype.update = function(deltaTime) {
+this.position.x += this.velocity.x * deltaTime;
+this.position.y += this.velocity.y * deltaTime;
+this.velocity.x += this.acceleration.x * deltaTime;
+this.velocity.y += this.acceleration.y * deltaTime;
+this.age += deltaTime;
+};
+Particle.prototype.draw = function(context, image) {
+function ease(t) {
+    return (--t) * t * t + 1;
+}
+var size = image.width * ease(this.age / settings.particles.duration);
+context.globalAlpha = 1 - this.age / settings.particles.duration;
+context.drawImage(image, this.position.x - size / 2, this.position.y - size / 2, size, size);
+};
+return Particle;
+})();
+
+/*
+* ParticlePool class
+*/
+var ParticlePool = (function() {
+var particles,
+    firstActive = 0,
+    firstFree   = 0,
+    duration    = settings.particles.duration;
+
+function ParticlePool(length) {
+// create and populate particle pool
+particles = new Array(length);
+for (var i = 0; i < particles.length; i++)
+    particles[i] = new Particle();
+}
+ParticlePool.prototype.add = function(x, y, dx, dy) {
+particles[firstFree].initialize(x, y, dx, dy);
+
+// handle circular queue
+firstFree++;
+if (firstFree   == particles.length) firstFree   = 0;
+if (firstActive == firstFree       ) firstActive++;
+if (firstActive == particles.length) firstActive = 0;
+};
+ParticlePool.prototype.update = function(deltaTime) {
+var i;
+
+// update active particles
+if (firstActive < firstFree) {
+    for (i = firstActive; i < firstFree; i++)
+    particles[i].update(deltaTime);
+}
+if (firstFree < firstActive) {
+    for (i = firstActive; i < particles.length; i++)
+    particles[i].update(deltaTime);
+    for (i = 0; i < firstFree; i++)
+    particles[i].update(deltaTime);
+}
+
+// remove inactive particles
+while (particles[firstActive].age >= duration && firstActive != firstFree) {
+    firstActive++;
+    if (firstActive == particles.length) firstActive = 0;
+}
+
+
+};
+ParticlePool.prototype.draw = function(context, image) {
+// draw active particles
+if (firstActive < firstFree) {
+    for (i = firstActive; i < firstFree; i++)
+    particles[i].draw(context, image);
+}
+if (firstFree < firstActive) {
+    for (i = firstActive; i < particles.length; i++)
+    particles[i].draw(context, image);
+    for (i = 0; i < firstFree; i++)
+    particles[i].draw(context, image);
+}
+};
+return ParticlePool;
+})();
+
+/*
+* Putting it all together
+*/
+(function(canvas) {
+var context = canvas.getContext('2d'),
+    particles = new ParticlePool(settings.particles.length),
+    particleRate = settings.particles.length / settings.particles.duration, // particles/sec
+    time;
+
+// get point on heart with -PI <= t <= PI
+function pointOnHeart(t) {
+return new Point(
+    160 * Math.pow(Math.sin(t), 3),
+    130 * Math.cos(t) - 50 * Math.cos(2 * t) - 20 * Math.cos(3 * t) - 10 * Math.cos(4 * t) + 25
+);
+}
+
+// creating the particle image using a dummy canvas
+var image = (function() {
+var canvas  = document.createElement('canvas'),
+    context = canvas.getContext('2d');
+canvas.width  = settings.particles.size;
+canvas.height = settings.particles.size;
+// helper function to create the path
+function to(t) {
+    var point = pointOnHeart(t);
+    point.x = settings.particles.size / 2 + point.x * settings.particles.size / 350;
+    point.y = settings.particles.size / 2 - point.y * settings.particles.size / 350;
+    return point;
+}
+// create the path
+context.beginPath();
+var t = -Math.PI;
+var point = to(t);
+context.moveTo(point.x, point.y);
+while (t < Math.PI) {
+    t += 0.01; // baby steps!
+    point = to(t);
+    context.lineTo(point.x, point.y);
+}
+context.closePath();
+// create the fill
+context.fillStyle = '#ea80b0';
+context.fill();
+// create the image
+var image = new Image();
+image.src = canvas.toDataURL();
+return image;
+})();
+
+// render that thing!
+function render() {
+// next animation frame
+requestAnimationFrame(render);
+
+// update time
+var newTime   = new Date().getTime() / 1000,
+    deltaTime = newTime - (time || newTime);
+time = newTime;
+
+// clear canvas
+context.clearRect(0, 0, canvas.width, canvas.height);
+
+// create new particles
+var amount = particleRate * deltaTime;
+for (var i = 0; i < amount; i++) {
+    var pos = pointOnHeart(Math.PI - 2 * Math.PI * Math.random());
+    var dir = pos.clone().length(settings.particles.velocity);
+    particles.add(canvas.width / 2 + pos.x, canvas.height / 2 - pos.y, dir.x, -dir.y);
+}
+
+// update and draw particles
+particles.update(deltaTime);
+particles.draw(context, image);
+}
+
+// handle (re-)sizing of the canvas
+function onResize() {
+canvas.width  = canvas.clientWidth;
+canvas.height = canvas.clientHeight;
+}
+window.onresize = onResize;
+
+// delay rendering bootstrap
+setTimeout(function() {
+onResize();
+render();
+}, 10);
+})(document.getElementById('pinkboard'));
 </script>
-</head>
-<body>
-  <div data-v-521ffdeb="" class="red-cover-page show old-version">
-  <div data-v-521ffdeb="" class="red-cover-mask">
-  </div>
-  <div data-v-521ffdeb="" class="wxHongbao_receive default">
-  <div data-v-521ffdeb="" class="receive-status">
-  <div data-v-521ffdeb="" class="receive-container">
-  <div data-v-521ffdeb="" class="receive-icon-gift">
-  </div>
-  </div>
-  <section data-v-521ffdeb="" class="receive-body">
-  <section data-v-521ffdeb="" class="wxHongbao_info wxHongbao_amDefault wxHongbao_amFadeInDown">
-  <div data-v-521ffdeb="" class="wxHongbao_info_nickname wxHongbao_text_line" _msthash="1829477" _msttexthash="13846274">来自迪士尼在逃公主</div>
-  <div data-v-521ffdeb="" class="wxHongbao_info_body wxHongbao_text_line"><font _mstmutation="1" _msthash="1829620" _msttexthash="41545712">赠送给你一个红包</font><br data-v-521ffdeb="">
-  </div>
-  <div data-v-521ffdeb="" class="wxHongbao_info_corpname wxHongbao_text_line">
-  <span data-v-521ffdeb="" _msthash="2318615" _msttexthash="17441021">今天你摸鱼了吗？</span>
-  </div>
-  </section>
-  <section data-v-521ffdeb="" class="wxHongbao_skinBg wxHongbao_amDefault wxHongbao_amFadeInDown2">
-  <div data-v-521ffdeb="" class="wxHongbao_info_imgWrap">
-  <div data-v-521ffdeb="" class="wxHongbao_info_img new" style="background-image: url(http://tc.tombk.cn/upload/b614945345795a0cf7a8a47028cad7f25b4d473c9891b422fc9e0a242f06f634.0.jpg);">
-  <div data-v-521ffdeb="" class="wxHongbao_info_imgMark">
-
-  </div>
-  </div>
-  <div data-v-521ffdeb="" class="receive-success-body">
-  <div data-v-521ffdeb="" class="msg-title" _msthash="2697253" _msttexthash="8760388">已领取</div>
-  <div data-v-521ffdeb="" class="msg-desc" _msthash="2697396" _msttexthash="135554107">发红包时，可在"红包封面"中查看和使用该封面。</div></div></div></section>
-
-
-  <section data-v-521ffdeb="" class="wxHongbao_receive_btn_wrap wxHongbao_amDefault wxHongbao_amFadeIn">
-  <a href="javascript:;" onclick="fun1()" class="wxhognbao_btn" _msthash="1696006" _msttexthash="15549014">领取并使用</a>
-  <div data-v-521ffdeb="" class="wxHongbao_receive_tip" _msthash="1830166" _msttexthash="31259371">领取后三个月内有效</div>
-  </section></section>
-  </div></div></div>
-
-  
-
-
-</body></html>
+</BODY>
+</HTML>
